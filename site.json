@@ -1,0 +1,166 @@
+{
+  "theme": "slate",
+  "profile": {
+    "full_name": "ชื่อ-นามสกุล / Full Name",
+    "role_th": "วิศวกรเครือข่าย",
+    "role_en": "Network Engineer",
+    "summary_th": "วิศวกรเครือข่ายผู้ถือ CCNA เน้นความเสถียร ความปลอดภัย และการออกแบบที่ดูแลง่าย ประสบการณ์ทำงาน ~2 ปี",
+    "summary_en": "CCNA-certified network engineer focused on stability, security, and maintainable designs with ~2 years of experience.",
+    "quick_tags": [
+      "OSPF",
+      "VLAN",
+      "Firewall",
+      "VPN",
+      "WLC",
+      "Monitoring"
+    ],
+    "avatar_url": "https://images.unsplash.com/photo-1600486913747-55e0876a2b65?q=80&w=1200&auto=format&fit=crop"
+  },
+  "about_th": "มุ่งมั่นในการออกแบบ ติดตั้ง และดูแลระบบเครือข่าย LAN/WAN ให้พร้อมใช้งานสูงและปลอดภัย ประสานงานกับทีม System/Dev/Ops และคู่ค้าอย่างมืออาชีพ",
+  "about_en": "Committed to designing, deploying, and operating secure, highly available LAN/WAN infrastructures; collaborate with System/Dev/Ops teams and vendors.",
+  "skills": {
+    "routing": [
+      "OSPF",
+      "Static",
+      "HSRP",
+      "STP/RSTP",
+      "VLAN",
+      "Inter-VLAN",
+      "EtherChannel"
+    ],
+    "security": [
+      "ACL",
+      "NAT",
+      "VPN (IPsec/SSL)",
+      "Zone-Based Firewall",
+      "802.1X",
+      "Port Security"
+    ],
+    "wireless": [
+      "WLC",
+      "Site Survey/Heatmap",
+      "QoS",
+      "SNMP",
+      "Syslog",
+      "NetFlow",
+      "Alerting"
+    ],
+    "badges_routing": [
+      "Cisco Catalyst",
+      "Cisco ISR",
+      "MikroTik"
+    ],
+    "badges_security": [
+      "Cisco ASA/FTD",
+      "pfSense",
+      "Suricata"
+    ],
+    "badges_wireless": [
+      "Cisco WLC",
+      "UniFi",
+      "PRTG/Zabbix"
+    ]
+  },
+  "experience": [
+    {
+      "company_th": "บริษัท ABC จำกัด",
+      "company_en": "ABC Co., Ltd.",
+      "role_th": "วิศวกรเครือข่าย",
+      "role_en": "Network Engineer",
+      "from": "ม.ค. 2024",
+      "to": "ปัจจุบัน",
+      "from_en": "Jan 2024",
+      "to_en": "Present",
+      "points_th": [
+        "ออกแบบ/ปรับปรุงโครงข่ายสาขา (ทดสอบ SD-WAN) ลดเหตุขัดข้อง ~30%",
+        "ดูแล Switch/Router/Firewall และ VPN สำหรับพนักงาน",
+        "จัดทำ Runbook/Template ลดเวลาติดตั้งสาขาใหม่จาก 2 วันเหลือ ~6 ชม."
+      ],
+      "points_en": [
+        "Designed/optimized branch networks (SD‑WAN pilot), reducing incidents by ~30%.",
+        "Operated switches/routers/firewalls and VPN solutions for staff.",
+        "Authored runbooks/templates; cut new‑site deployment time from 2 days to ~6 hours."
+      ]
+    },
+    {
+      "company_th": "บริษัท XYZ โซลูชัน",
+      "company_en": "XYZ Solutions",
+      "role_th": "NOC/Support",
+      "role_en": "NOC/Support",
+      "from": "ต.ค. 2023",
+      "to": "ธ.ค. 2023",
+      "from_en": "Oct 2023",
+      "to_en": "Dec 2023",
+      "points_th": [
+        "มอนิเตอร์อุปกรณ์ 200+ ตัวและแก้ไขเหตุขัดข้องร่วมกับทีมภาคสนาม",
+        "วิเคราะห์ปัญหา L1‑L2 (link/duplex/DHCP/DNS) และ Escalate กรณี L3"
+      ],
+      "points_en": [
+        "Monitored 200+ devices; coordinated incident remediation with field teams.",
+        "Troubleshot L1–L2 (link/duplex/DHCP/DNS) and escalated L3 cases."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Campus Network Revamp",
+      "desc_th": "ออกแบบ Core‑Distribution‑Access พร้อม VLAN Segmentation และ 802.1X",
+      "desc_en": "Redesigned core‑distribution‑access with VLAN segmentation and 802.1X.",
+      "bullets_th": [
+        "เอกสาร HLD/LLD, Diagram, IP Plan, Template Config"
+      ],
+      "bullets_en": [
+        "Delivered HLD/LLD, diagrams, IP plan, configuration templates"
+      ]
+    },
+    {
+      "name": "Branch Wi‑Fi Modernization",
+      "desc_th": "ทำ Site Survey/Heatmap ปรับช่อง/กำลังส่ง และตั้งค่า WLC",
+      "desc_en": "Conducted site survey/heatmaps, tuned channels/Tx power, and configured WLC.",
+      "bullets_th": [
+        "Latency ลดลง ~20% และ Ticket ด้าน Wi‑Fi ลดลงชัดเจน"
+      ],
+      "bullets_en": [
+        "Reduced latency by ~20% and significantly lowered Wi‑Fi tickets"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "CCNA",
+      "issuer": "Cisco",
+      "id": "XXXXXXXX"
+    },
+    {
+      "name": "MTCNA (optional)",
+      "issuer": "MikroTik",
+      "id": "XXXXXXXX"
+    }
+  ],
+  "education": [
+    {
+      "degree_th": "วท.บ. วิศวกรรมคอมพิวเตอร์",
+      "degree_en": "B.Eng. in Computer Engineering",
+      "school": "มหาวิทยาลัยตัวอย่าง / Example University",
+      "year": "20XX"
+    }
+  ],
+  "languages": [
+    {
+      "th": "ไทย (เจ้าของภาษา)",
+      "en": "Thai (native)"
+    },
+    {
+      "th": "อังกฤษ (สื่อสารด้านเทคนิคได้ดี – TOEIC 7xx)",
+      "en": "English (strong technical communication – TOEIC 7xx)"
+    }
+  ],
+  "contacts": {
+    "email": "your.name@example.com",
+    "phone": "+66-8x-xxx-xxxx",
+    "linkedin": "https://linkedin.com/in/yourname",
+    "github": "https://github.com/yourname",
+    "location_th": "กรุงเทพมหานคร",
+    "location_en": "Bangkok, Thailand"
+  }
+}

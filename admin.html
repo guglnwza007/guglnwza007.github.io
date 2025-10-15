@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin | Portfolio Editor (TH/EN)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b1220;--card:#0f172a;--ink:#e6edf3;--muted:#a7b7c8;--border:rgba(255,255,255,.12);--accent:#3b82f6;--radius:14px}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Prompt,Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.6}
+    a{color:#93c5fd}
+    .wrap{width:min(1100px,94%);margin:28px auto}
+    h1{margin:0 0 14px}
+    .row{display:grid;grid-template-columns: 250px 1fr;gap:18px}
+    .side{position:sticky;top:18px;height:fit-content}
+    .nav{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+    .nav button{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;color:var(--ink);padding:10px 12px;cursor:pointer}
+    .nav button.active{background:#14203a;border-color:rgba(255,255,255,.12)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    label{display:block;font-weight:600;margin-top:10px}
+    input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#0f172a;color:#e6edf3}
+    textarea{min-height:100px}
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .item{border:1px dashed rgba(255,255,255,.15);border-radius:12px;padding:10px}
+    .row-inline{display:flex;gap:10px;align-items:center}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#13203b;color:#e6edf3;font-weight:600;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,#2563eb,#3b82f6)}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    .small{font-size:12px}
+    .danger{background:#3b1e22}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>Admin • Portfolio Editor (TH/EN)</h1>
+      <div class="btns">
+        <button class="btn" id="loadSite">โหลดจาก site.json</button>
+        <label class="btn"><input type="file" id="importFile" accept=".json" hidden />นำเข้า JSON</label>
+        <button class="btn primary" id="downloadJSON">ดาวน์โหลด site.json</button>
+        <a class="btn" href="./index.html" target="_blank">เปิดดูหน้าเว็บไซต์</a>
+      </div>
+    </div>
+    <p class="muted small">หมายเหตุ: หน้านี้ไม่มีเซิร์ฟเวอร์หลังบ้าน (เหมาะกับ GitHub Pages) — ใช้ปุ่ม “ดาวน์โหลด site.json” แล้วอัปไฟล์ขึ้น GitHub เพื่ออัปเดตเนื้อหา</p>
+
+    <div class="row">
+      <div class="side">
+        <div class="nav" id="nav"></div>
+      </div>
+      <div id="panel" class="card"></div>
+    </div>
+  </div>
+
+  <script>
+    const sections = [
+      {id:'profile', name:'โปรไฟล์ / Profile'},
+      {id:'contacts', name:'ติดต่อ / Contacts'},
+      {id:'skills', name:'ทักษะ / Skills'},
+      {id:'experience', name:'ประสบการณ์ / Experience'},
+      {id:'projects', name:'โปรเจกต์ / Projects'},
+      {id:'certifications', name:'ใบรับรอง / Certifications'},
+      {id:'education', name:'การศึกษา / Education'},
+      {id:'languages', name:'ภาษา / Languages'},
+      {id:'theme', name:'ธีมสี / Theme'}
+    ];
+    const $ = (s, r=document)=> r.querySelector(s);
+    const $$ = (s, r=document)=> Array.from(r.querySelectorAll(s));
+    const nav = $('#nav'), panel = $('#panel');
+    let data = null;
+
+    async function loadDefault(){
+      // Try fetching site.json; fallback to minimal skeleton
+      const skeleton = {
+        theme:"slate",
+        profile:{full_name:"",role_th:"วิศวกรเครือข่าย",role_en:"Network Engineer",summary_th:"",summary_en:"",quick_tags:[],avatar_url:""},
+        about_th:"",about_en:"",
+        skills:{routing:[],security:[],wireless:[],badges_routing:[],badges_security:[],badges_wireless:[]},
+        experience:[],projects:[],certifications:[],education:[],languages:[],
+        contacts:{email:"",phone:"",linkedin:"",github:"",location_th:"",location_en:""}
+      };
+      try{
+        const res = await fetch('site.json', {cache:'no-store'});
+        data = await res.json();
+      }catch(e){ data = skeleton; }
+      localStorage.setItem('portfolio_admin', JSON.stringify(data));
+    }
+    function loadFromLocal(){
+      const t = localStorage.getItem('portfolio_admin');
+      data = t ? JSON.parse(t) : null;
+    }
+    function saveLocal(){ localStorage.setItem('portfolio_admin', JSON.stringify(data)); }
+
+    function renderNav(){
+      nav.innerHTML = '';
+      sections.forEach((s,i)=>{
+        const b=document.createElement('button'); b.textContent=s.name; b.dataset.id=s.id;
+        b.addEventListener('click', ()=>{ $$('.nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); openSection(s.id); });
+        if(i===0) b.classList.add('active');
+        nav.appendChild(b);
+      });
+    }
+
+    function openSection(id){
+      panel.innerHTML='';
+      if(id==='profile') sectionProfile();
+      if(id==='contacts') sectionContacts();
+      if(id==='skills') sectionSkills();
+      if(id==='experience') sectionExperience();
+      if(id==='projects') sectionProjects();
+      if(id==='certifications') sectionCerts();
+      if(id==='education') sectionEdu();
+      if(id==='languages') sectionLangs();
+      if(id==='theme') sectionTheme();
+    }
+
+    function inputRow(labelTH, keyPath, placeholder=''){ // supports 'a.b.c'
+      const w=document.createElement('div');
+      const lab=document.createElement('label'); lab.textContent=labelTH; w.appendChild(lab);
+      const inp=document.createElement('input'); inp.placeholder=placeholder; w.appendChild(inp);
+      // get value
+      const get=(obj, path)=> path.split('.').reduce((o,k)=> o?o[k]:undefined, obj);
+      const set=(obj, path, val)=>{
+        const ks=path.split('.'); const last=ks.pop(); const target=ks.reduce((o,k)=>{ if(!o[k]) o[k]={}; return o[k]; }, obj);
+        target[last]=val;
+      };
+      inp.value = get(data, keyPath) || '';
+      inp.addEventListener('input', ()=>{ set(data, keyPath, inp.value); saveLocal(); });
+      return w;
+    }
+    function textareaRow(labelTH, keyPath, placeholder=''){
+      const w=document.createElement('div'); const lab=document.createElement('label'); lab.textContent=labelTH; w.appendChild(lab);
+      const ta=document.createElement('textarea'); ta.placeholder=placeholder; w.appendChild(ta);
+      const get=(o,p)=> p.split('.').reduce((o,k)=> o?o[k]:undefined, o);
+      const set=(o,p,v)=>{const ks=p.split('.'); const last=ks.pop(); const t=ks.reduce((o,k)=>{ if(!o[k]) o[k]={}; return o[k]; }, o); t[last]=v;};
+      ta.value = get(data, keyPath) || '';
+      ta.addEventListener('input', ()=>{ set(data, keyPath, ta.value); saveLocal(); });
+      return w;
+    }
+    function listRow(labelTH, keyPath){
+      const w=document.createElement('div');
+      const lab=document.createElement('label'); lab.textContent=labelTH; w.appendChild(lab);
+      const list=document.createElement('div'); list.className='list'; w.appendChild(list);
+      const get=(o,p)=> p.split('.').reduce((o,k)=> o?o[k]:undefined, o) || [];
+      const set=(o,p,val)=>{
+        const ks=p.split('.'); const last=ks.pop(); const t=ks.reduce((o,k)=>{ if(!o[k]) o[k]={}; return o[k]; }, o);
+        t[last]=val;
+      };
+      function render(){
+        list.innerHTML='';
+        const arr = get(data, keyPath);
+        arr.forEach((val,idx)=>{
+          const it=document.createElement('div'); it.className='item';
+          const row=document.createElement('div'); row.className='row-inline';
+          const inp=document.createElement('input'); inp.value=val; row.appendChild(inp);
+          const del=document.createElement('button'); del.className='btn danger'; del.textContent='ลบ'; row.appendChild(del);
+          it.appendChild(row);
+          list.appendChild(it);
+          inp.addEventListener('input', ()=>{ arr[idx]=inp.value; set(data, keyPath, arr); saveLocal(); });
+          del.addEventListener('click', ()=>{ arr.splice(idx,1); set(data, keyPath, arr); saveLocal(); render(); });
+        });
+        const add=document.createElement('button'); add.className='btn'; add.textContent='เพิ่มรายการ'; add.addEventListener('click', ()=>{ arr.push(''); set(data, keyPath, arr); saveLocal(); render(); });
+        list.appendChild(add);
+      }
+      render();
+      return w;
+    }
+
+    function sectionProfile(){
+      const f=document.createElement('div'); f.className='grid2';
+      f.appendChild(inputRow('ชื่อ-นามสกุล / Full name','profile.full_name'));
+      f.appendChild(inputRow('Avatar URL','profile.avatar_url','https://...'));
+      f.appendChild(inputRow('ตำแหน่ง (TH)','profile.role_th','วิศวกรเครือข่าย'));
+      f.appendChild(inputRow('Role (EN)','profile.role_en','Network Engineer'));
+      f.appendChild(textareaRow('สรุป (TH)','profile.summary_th','ย่อหน้าแนะนำตัวภาษาไทย'));
+      f.appendChild(textareaRow('Summary (EN)','profile.summary_en','English summary'));
+      f.appendChild(listRow('Quick tags (OSPF, VLAN, ... )','profile.quick_tags'));
+      f.appendChild(textareaRow('About (TH)','about_th'));
+      f.appendChild(textareaRow('About (EN)','about_en'));
+      panel.appendChild(f);
+    }
+    function sectionContacts(){
+      const f=document.createElement('div'); f.className='grid2';
+      f.appendChild(inputRow('Email','contacts.email','your.name@example.com'));
+      f.appendChild(inputRow('Phone','contacts.phone','+66-8x-xxx-xxxx'));
+      f.appendChild(inputRow('LinkedIn','contacts.linkedin','https://linkedin.com/in/...'));
+      f.appendChild(inputRow('GitHub','contacts.github','https://github.com/...'));
+      f.appendChild(inputRow('ที่อยู่ (TH)','contacts.location_th','กรุงเทพมหานคร'));
+      f.appendChild(inputRow('Location (EN)','contacts.location_en','Bangkok, Thailand'));
+      panel.appendChild(f);
+    }
+    function sectionSkills(){
+      const f=document.createElement('div');
+      f.appendChild(listRow('Routing & Switching','skills.routing'));
+      f.appendChild(listRow('Security','skills.security'));
+      f.appendChild(listRow('Wireless & Monitoring','skills.wireless'));
+      f.appendChild(listRow('Badges Routing (เช่น Cisco Catalyst)','skills.badges_routing'));
+      f.appendChild(listRow('Badges Security (เช่น Cisco ASA/FTD)','skills.badges_security'));
+      f.appendChild(listRow('Badges Wireless (เช่น Cisco WLC)','skills.badges_wireless'));
+      panel.appendChild(f);
+    }
+    function complexList(sectionKey, fields){
+      const wrap=document.createElement('div'); const list=document.createElement('div'); list.className='list'; wrap.appendChild(list);
+      function render(){
+        list.innerHTML='';
+        const arr = data[sectionKey] || [];
+        arr.forEach((obj, idx)=>{
+          const it=document.createElement('div'); it.className='item';
+          fields.forEach(f=>{
+            if(f.type==='text'){
+              const row = inputRow(f.label, `${sectionKey}.${idx}.${f.key}`, f.placeholder||'');
+              it.appendChild(row);
+            }else if(f.type==='textarea'){
+              const row = textareaRow(f.label, `${sectionKey}.${idx}.${f.key}`, f.placeholder||'');
+              it.appendChild(row);
+            }else if(f.type==='list'){
+              const row = listRow(f.label, `${sectionKey}.${idx}.${f.key}`);
+              it.appendChild(row);
+            }
+          });
+          const del=document.createElement('button'); del.className='btn danger'; del.textContent='ลบรายการนี้'; del.addEventListener('click', ()=>{ arr.splice(idx,1); data[sectionKey]=arr; saveLocal(); render(); });
+          it.appendChild(del);
+          list.appendChild(it);
+        });
+        const add=document.createElement('button'); add.className='btn'; add.textContent='เพิ่มรายการ'; add.addEventListener('click', ()=>{
+          const blank={}; fields.forEach(f=>{ if(f.type==='list') blank[f.key]=[]; else blank[f.key]=''; });
+          (data[sectionKey]||(data[sectionKey]=[])).push(blank); saveLocal(); render();
+        });
+        list.appendChild(add);
+      }
+      render();
+      return wrap;
+    }
+    function sectionExperience(){
+      const flds=[
+        {type:'text', label:'บริษัท (TH)', key:'company_th'},
+        {type:'text', label:'Company (EN)', key:'company_en'},
+        {type:'text', label:'ตำแหน่ง (TH)', key:'role_th'},
+        {type:'text', label:'Role (EN)', key:'role_en'},
+        {type:'text', label:'จาก (TH)', key:'from'},
+        {type:'text', label:'ถึง (TH)', key:'to'},
+        {type:'text', label:'From (EN)', key:'from_en'},
+        {type:'text', label:'To (EN)', key:'to_en'},
+        {type:'list', label:'หัวข้อผลงาน (TH)', key:'points_th'},
+        {type:'list', label:'Highlights (EN)', key:'points_en'}
+      ];
+      panel.appendChild(complexList('experience', flds));
+    }
+    function sectionProjects(){
+      const flds=[
+        {type:'text', label:'ชื่อโปรเจกต์', key:'name'},
+        {type:'textarea', label:'คำอธิบาย (TH)', key:'desc_th'},
+        {type:'textarea', label:'Description (EN)', key:'desc_en'},
+        {type:'list', label:'หัวข้อ (TH)', key:'bullets_th'},
+        {type:'list', label:'Bullets (EN)', key:'bullets_en'}
+      ];
+      panel.appendChild(complexList('projects', flds));
+    }
+    function sectionCerts(){
+      const flds=[
+        {type:'text', label:'ชื่อใบรับรอง', key:'name'},
+        {type:'text', label:'ผู้ออกใบรับรอง / Issuer', key:'issuer'},
+        {type:'text', label:'หมายเลข / ID', key:'id'}
+      ];
+      panel.appendChild(complexList('certifications', flds));
+    }
+    function sectionEdu(){
+      const flds=[
+        {type:'text', label:'วุฒิการศึกษา (TH)', key:'degree_th'},
+        {type:'text', label:'Degree (EN)', key:'degree_en'},
+        {type:'text', label:'สถาบัน / School', key:'school'},
+        {type:'text', label:'ปีที่จบ / Year', key:'year'}
+      ];
+      panel.appendChild(complexList('education', flds));
+    }
+    function sectionLangs(){
+      const flds=[
+        {type:'text', label:'ภาษา (TH)', key:'th'},
+        {type:'text', label:'Language (EN)', key:'en'}
+      ];
+      panel.appendChild(complexList('languages', flds));
+    }
+    function sectionTheme(){
+      const wrap=document.createElement('div'); wrap.className='grid2';
+      const themes=['slate','ivory','mono','teal','navy'];
+      const lab=document.createElement('label'); lab.textContent='ธีมสี (slate/ivory/mono/teal/navy)'; wrap.appendChild(lab);
+      const sel=document.createElement('select'); themes.forEach(t=>{const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o);}); wrap.appendChild(sel);
+      sel.value = data.theme || 'slate';
+      sel.addEventListener('change', ()=>{ data.theme = sel.value; saveLocal(); });
+      panel.appendChild(wrap);
+    }
+
+    function openFirst(){ $$('.nav button')[0]?.click(); }
+
+    // Buttons
+    $('#loadSite').addEventListener('click', async ()=>{ await loadDefault(); renderNav(); openFirst(); });
+    $('#downloadJSON').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(data||{}, null, 2)], {type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='site.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+    $('#importFile').addEventListener('change', (e)=>{
+      const file=e.target.files[0]; if(!file) return;
+      const fr=new FileReader();
+      fr.onload=()=>{ try{ data=JSON.parse(fr.result); saveLocal(); renderNav(); openFirst(); }catch(err){ alert('ไฟล์ไม่ถูกต้อง'); } };
+      fr.readAsText(file);
+    });
+
+    // Initialize
+    loadFromLocal();
+    if(!data) loadDefault().then(()=>{ renderNav(); openFirst(); });
+    else { renderNav(); openFirst(); }
+  </script>
+</body>
+</html>
